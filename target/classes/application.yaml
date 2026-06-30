@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: taskify-api-gateway
+
+  cloud:
+    gateway:
+      # Global CORS configuration to allow your Flutter Web application to talk to the backend
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*" # Replace with your specific Flutter web hosting URL in production
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+
+      # Define Routing Rules to downstream microservices
+      routes:
+        # Route 1: Anything matching /api/auth/** goes to the Auth Service
+        - id: auth-service-route
+          uri: http://localhost:8081 # Target URL for local auth service
+          predicates:
+            - Path=/api/auth/**
+
+        # Route 2: Anything matching /api/tasks/** goes to the Task Service
+        - id: task-service-route
+          uri: http://localhost:8082 # Target URL for local task service
+          predicates:
+            - Path=/api/tasks/**
+
+# Actuator Endpoints Configuration for Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, gateway
